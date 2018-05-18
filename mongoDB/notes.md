@@ -216,3 +216,56 @@ db.users.find({'address.city': 'Los Angeles'}).explain()
 
 ```
 
+# Java访问mongoDB
+
+* 需要将 [mongo-java-driver-3.2.2.jar](http://central.maven.org/maven2/org/mongodb/mongo-java-driver/) （找到合适的版本）包含在你的 classpath 中  
+
+```
+import java.util.ArrayList;
+import java.util.List;
+import org.bson.Document;
+import com.mongodb.MongoClient;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+public class MongoDBTest {
+	public static void main(String[] args) {
+		try {
+			MongoClient client = new MongoClient("localhost", 27017);
+			MongoDatabase base = client.getDatabase("ebag");
+			System.out.println("Connect to database successfully");
+			//获取collection
+			MongoCollection<Document> collection = base.getCollection("person");
+			//添加文档
+			Document document = new Document();
+			document.append("name", "wenjianing");
+			document.append("age", 2);
+			document.append("address", "北京");
+			document.append("sex", 0);
+			List<Document> documents = new ArrayList<>();
+			documents.add(document);
+			collection.insertMany(documents);
+			System.out.println("文档插入成功");
+			//检索文档
+			FindIterable<Document> findIterable = collection.find();
+			MongoCursor<Document> mongoCursor = findIterable.iterator();
+			while (mongoCursor.hasNext()) {
+				System.out.println(mongoCursor.next());
+			}
+			//更新文档
+			collection.updateMany(Filters.eq("name", "wenjianing"), new Document("$set", new Document("eamil", "wenxl@edu-edu.com.cn")));
+			
+			while (mongoCursor.hasNext()) {
+				System.out.println(mongoCursor.next());
+			}
+			collection.deleteOne(Filters.eq("name", "wenjianing"));
+		} catch (Exception e) {
+			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+		}
+	}
+}
+
+```
+
