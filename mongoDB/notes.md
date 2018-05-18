@@ -36,19 +36,19 @@ net:
 * 默认的目录为 C:/data/db
 * 上面配置文件的为 D:/MongoDB/data 和 D:/MongoDB/logs
 
-#创建和删除
-* 创建数据库 ```use DATABASE_NAME``` 
+#创建和删除  
+* 创建数据库 ```use DATABASE_NAME```  
 如果数据库存在则使用它，不存在则创建  
 * 删除数据库 ```db.dropDatabase()```  
 删除的是当前数据库  
 * 创建集合 ```db.createCollection(name, options)```  
 集合相当于 MySQL 中的 Table，MongoDB 插入时如果集合不存在则会自动创建集合，MySQL 不一样，需要事先创建好表才能进行插入  
- * name: 要创建的集合名称  
- * options: 可选参数, 指定有关内存大小及索引的选项  
-  * capped: （可选）如果为 true，则创建固定集合。固定集合是指有着固定大小的集合，当达到最大值时，它会自动覆盖最早的文档。当该值为 true 时，必须指定 size 参数。  
-  * autoIndexId: （可选）如为 true，自动在 _id 字段创建索引。默认为 false。    
-  * size:（可选）为固定集合指定一个最大值（以字节计）。如果 capped 为 true，也需要指定该字段。  
-  * max: （可选）指定固定集合中包含文档的最大数量。
+  * name: 要创建的集合名称  
+  * options: 可选参数, 指定有关内存大小及索引的选项  
+    * capped: （可选）如果为 true，则创建固定集合。固定集合是指有着固定大小的集合，当达到最大值时，它会自动覆盖最早的文档。当该值为 true 时，必须指定 size 参数。  
+    * autoIndexId: （可选）如为 true，自动在 _id 字段创建索引。默认为 false。    
+    * size:（可选）为固定集合指定一个最大值（以字节计）。如果 capped 为 true，也需要指定该字段。  
+    * max: （可选）指定固定集合中包含文档的最大数量。
 * 删除集合  ```db.collection.drop()```
 
  
