@@ -269,3 +269,125 @@ public class MongoDBTest {
 
 ```
 
+# Spring 集成 MongoDB
+
+可以使用 org.springframework.data:spring-data-mongodb 在 Spring 中集成 MongoDB，使用 JPA + Bean 的方式访问 MongoDB  
+
+* 配置mongodb.xml
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/data/mongo
+            http://www.springframework.org/schema/data/mongo/spring-mongo.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+    <context:annotation-config/>
+
+    <mongo:mongo-client host="localhost" port="27017">
+        <mongo:client-options connections-per-host="8"
+                              threads-allowed-to-block-for-connection-multiplier="4"
+                              connect-timeout="1000"
+                              max-wait-time="1500"
+                              socket-keep-alive="true"
+                              socket-timeout="1500"/>
+    </mongo:mongo-client>
+    <mongo:db-factory id="mongoDbFactory" dbname="${mongodb.database}" mongo-ref="mongoClient"/>
+    <mongo:template id="mongoTemplate" db-factory-ref="mongoDbFactory" write-concern="NORMAL"/>
+</beans>
+
+```
+* 创建一个 Bean 的类 Person:
+
+```
+import lombok.ToString;
+import org.springframework.data.annotation.Id;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+@Getter
+@Setter
+@ToString
+@Accessors(chain = true)
+public class Person {
+    @Id
+    private Long id;
+    private String firstName;
+    private String lastName;
+    public Person() {
+    }
+    public Person(Long id, String firstName, String lastName) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+}
+
+```
+
+# Query 进行查询
+
+ JPA 的方式简单查询时非常方便，复杂一些的情况就需要使用 MongoTemplate 了。使用 Criteria 创建 Query，PageRequest 进行分页，Sort 进行排序：
+ ```
+ mongoTemplate.findOne(Query.query(Ctiteria.where("receiverId").is(receiverId)), Document.class, "message");
+ 
+ ```
+ 
+ ```
+ // 等价 SQL: SELECT * FROM message_private WHERE receiverId=#{receiverId} AND read=#{read} ORDER BY createdTime DESC LIMIT page*size, //size
+PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
+Criteria criteria = Criteria.where("receiverId").is(receiverId).and("read").is(read);
+List<Message> messages = mongoTemplate.find(Query.query(criteria).with(pageable), Message.class, "message");
+ 
+ ```  
+ 多个 OR 条件使用 Criteria.orOperator 进行连接，例如下面的这个语句有多个 AND，并且还有多个 OR 条件，OR 中还有 AND： 
+ ```
+ // 等价 SQL:
+// SELECT * FROM message_group
+// WHERE (schoolId=#{schoolId} AND createdTime>#{from}) AND (
+//     (type='SCHOOL' AND schoolId=#{schoolId}) OR (type='CLAZZ' AND groupId=#{clazzId}) OR (type='TEAM' AND groupId=#{teamId})
+// )
+// ORDER BY createdTime ASC
+    
+Criteria orCriteria = new Criteria().orOperator(
+    Criteria.where("type").is("SCHOOL").and("schoolId").is(schoolId),
+    Criteria.where("type").is("CLAZZ").and("groupId").is(clazzId),
+    Criteria.where("type").is("TEAM").and("groupId").is(teamId)
+);
+Criteria criteria = Criteria.where("schoolId").is(schoolId).and("createdTime").gt(from).andOperator(orCriteria);
+Sort sortByCreatedTime = Sort.by(Sort.Direction.ASC, "createdTime");
+mongoTemplate.find(Query.query(criteria).with(sortByCreatedTime), Message.class, MESSAGE_GROUP);
+
+ ```
+ 
+ # Update 进行更新
+ 
+ 使用 Query 查询符合条件的记录，用 Update 进行更新：  
+ 
+ ```
+ // 等价 SQL: UPDATE message_private SET read=true WHERE _id=#{receiverId}
+Criteria criteria = Criteria.where("_id").is(messageId).and("receiverId").is(receiverId);
+Update update = Update.update("read", true);
+mongoTemplate.updateFirst(Query.query(criteria), update, MESSAGE_USER);
+
+ ```
+ > 使用 updateMulti 更新符合条件的多个 document。
+ 
+ # Upsert 插入或更新
+ 
+ ```
+ Document document = new Document().append("receiverId", receiverId).append("time", date);
+ mongoTemplate.upsert(Query.query(Criteria.where("receiverId").is(receiverId)), Update.fromDocument(document), MESSAGE_FETCH);
+
+ ```
+ > save 执行的也是 upsert 操作，但是只是使用 _id 进行比较，upsert 能够使用 Query 进行查询。 
+ 
+ # Remove 进行删除  
+ 
+ 用 ```remove(Query query, String collectionName)``` 和 ```findAllAndRemove(Query query, String collectionName)``` 进行删除。
+
