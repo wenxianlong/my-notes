@@ -26,3 +26,303 @@
 
 ```
 
+## 创建索引
+```
+PUT /megacorp/employee/1
+{
+    "first_name" : "John",
+    "last_name" :  "Smith",
+    "age" :        25,
+    "about" :      "I love to go rock climbing",
+    "interests": [ "sports", "music" ]
+}
+```
+
+## 检索文档
+* 检索单个文档
+```
+GET /megacorp/employee/1
+{
+  "_index" :   "megacorp",
+  "_type" :    "employee",
+  "_id" :      "1",
+  "_version" : 1,
+  "found" :    true,
+  "_source" :  {
+      "first_name" :  "John",
+      "last_name" :   "Smith",
+      "age" :         25,
+      "about" :       "I love to go rock climbing",
+      "interests":  [ "sports", "music" ]
+  }
+}
+```
+* 检索所有  
+```
+GET /megacorp/employee/_search
+{
+   "took":      6,
+   "timed_out": false,
+   "_shards": { ... },
+   "hits": {
+      "total":      3,
+      "max_score":  1,
+      "hits": [
+         {
+            "_index":         "megacorp",
+            "_type":          "employee",
+            "_id":            "3",
+            "_score":         1,
+            "_source": {
+               "first_name":  "Douglas",
+               "last_name":   "Fir",
+               "age":         35,
+               "about":       "I like to build cabinets",
+               "interests": [ "forestry" ]
+            }
+         },
+         {
+            "_index":         "megacorp",
+            "_type":          "employee",
+            "_id":            "1",
+            "_score":         1,
+            "_source": {
+               "first_name":  "John",
+               "last_name":   "Smith",
+               "age":         25,
+               "about":       "I love to go rock climbing",
+               "interests": [ "sports", "music" ]
+            }
+         },
+         {
+            "_index":         "megacorp",
+            "_type":          "employee",
+            "_id":            "2",
+            "_score":         1,
+            "_source": {
+               "first_name":  "Jane",
+               "last_name":   "Smith",
+               "age":         32,
+               "about":       "I like to collect rock albums",
+               "interests": [ "music" ]
+            }
+         }
+      ]
+   }
+}
+```
+* 条件检索  
+```
+GET /megacorp/employee/_search?q=last_name:Smith
+{
+   ...
+   "hits": {
+      "total":      2,
+      "max_score":  0.30685282,
+      "hits": [
+         {
+            ...
+            "_source": {
+               "first_name":  "John",
+               "last_name":   "Smith",
+               "age":         25,
+               "about":       "I love to go rock climbing",
+               "interests": [ "sports", "music" ]
+            }
+         },
+         {
+            ...
+            "_source": {
+               "first_name":  "Jane",
+               "last_name":   "Smith",
+               "age":         32,
+               "about":       "I like to collect rock albums",
+               "interests": [ "music" ]
+            }
+         }
+      ]
+   }
+}
+```
+* 使用查询表达式检索
+```
+GET /megacorp/employee/_search
+{
+    "query" : {
+        "match" : {
+            "last_name" : "Smith"
+        }
+    }
+}
+```
+* 更复杂的搜索  
+现在尝试下更复杂的搜索。 同样搜索姓氏为 Smith 的雇员，但这次我们只需要年龄大于 30 的。查询需要稍作调整，使用过滤器 filter ，它支持高效地执行一个结构化查询
+```
+GET /megacorp/employee/_search
+{
+    "query" : {
+        "bool": {
+            "must": {
+                "match" : {
+                    "last_name" : "smith" 
+                }
+            },
+            "filter": {
+                "range" : {
+                    "age" : { "gt" : 30 } 
+                }
+            }
+        }
+    }
+}
+```
+* 短语检索
+找出一个属性中的独立单词是没有问题的，但有时候想要精确匹配一系列单词或者短语 。 比如， 我们想执行这样一个查询，仅匹配同时包含 “rock” 和 “climbing” ，并且 二者以短语 “rock climbing” 的形式紧挨着的雇员记录。  
+```
+GET /megacorp/employee/_search
+{
+    "query" : {
+        "match_phrase" : {
+            "about" : "rock climbing"
+        }
+    }
+}
+```
+* 高亮检索  
+许多应用都倾向于在每个搜索结果中 高亮 部分文本片段，以便让用户知道为何该文档符合查询条件。在 Elasticsearch 中检索出高亮片段也很容易。  
+```
+GET /megacorp/employee/_search
+{
+    "query" : {
+        "match_phrase" : {
+            "about" : "rock climbing"
+        }
+      },
+      "highlight" : {
+          "fields" : {
+              "about" : {}
+          }
+      }
+}
+```
+### 分析文档
+Elasticsearch 有一个功能叫聚合（aggregations），允许我们基于数据生成一些精细的分析结果。聚合与 SQL 中的 GROUP BY 类似但更强大。
+例如：  
+
+```
+GET /megacorp/employee/_search
+{
+    "aggs" : {
+        "terms" : {
+            "field" : "interests"
+        }
+    }
+}
+```
+返回结果：  
+```
+{
+   ...
+   "hits": { ... },
+   "aggregations": {
+      "all_interests": {
+         "buckets": [
+            {
+               "key":       "music",
+               "doc_count": 2
+            },
+            {
+               "key":       "forestry",
+               "doc_count": 1
+            },
+            {
+               "key":       "sports",
+               "doc_count": 1
+            }
+         ]
+      }
+   }
+}
+```
+可以看到，两位员工对音乐感兴趣，一位对林地感兴趣，一位对运动感兴趣。这些聚合并非预先统计，而是从匹配当前查询的文档中即时生成。如果想知道叫 Smith 的雇员中最受欢迎的兴趣爱好，可以直接添加适当的查询来组合查询：
+
+```
+GET /megacorp/employee/_search
+{
+    "query" : {
+        "match" : {
+            "last_name" : "Smith
+         }
+      },
+      "aggs" : {
+          "all_interests" : {
+              "terms" : {
+                  "field" : "interests"
+              }
+          }
+      }
+}
+```
+```all_interests``` 聚合已经变为只包含匹配查询的文档：  
+```
+...
+  "all_interests": {
+     "buckets": [
+        {
+           "key": "music",
+           "doc_count": 2
+        },
+        {
+           "key": "sports",
+           "doc_count": 1
+        }
+     ]
+  }
+```
+聚合还支持分级汇总 。比如，查询特定兴趣爱好员工的平均年龄： 
+```
+GET /megacorp/employee/_search
+{
+    "aggs" : {
+        "all_interests" : {
+            "terms" : { "field" : "interests" },
+            "aggs" : {
+                "avg_age" : {
+                    "avg" : { "field" : "age" }
+                }
+            }
+        }
+    }
+}
+```
+得到的聚合结果有点儿复杂，但理解起来还是很简单的：
+```
+...
+  "all_interests": {
+     "buckets": [
+        {
+           "key": "music",
+           "doc_count": 2,
+           "avg_age": {
+              "value": 28.5
+           }
+        },
+        {
+           "key": "forestry",
+           "doc_count": 1,
+           "avg_age": {
+              "value": 35
+           }
+        },
+        {
+           "key": "sports",
+           "doc_count": 1,
+           "avg_age": {
+              "value": 25
+           }
+        }
+     ]
+  }
+```
+
+
