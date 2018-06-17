@@ -101,7 +101,6 @@ PUT http://localhost:9200/jd/employee/4/
 }
 
 ```
-
 ![](es_put.png)
 
 
@@ -188,7 +187,7 @@ GET /megacorp/employee/_search
 GET http://localhost:9200/jd/employee/4/
 
 ```
-![](.../image/search_one.png)
+![](../image/search_one.png)
 
 * 条件检索  
 
@@ -255,7 +254,7 @@ GET http://localhost:9200/_search?
   }
 }
 ```
-![](../image/search_query_hightlight.png)
+![](../image/search_query_highlight.png)
 
 ### 分析文档
 Elasticsearch 有一个功能叫聚合（aggregations），允许我们基于数据生成一些精细的分析结果。聚合与 SQL 中的 GROUP BY 类似但更强大。
