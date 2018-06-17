@@ -48,9 +48,9 @@
    ```
 4.修改head源码
    * 修改服务器监听地址，文件为 ``` elasticsearch-head/Gruntfile.js ```  增加hostname属性，设置为 hostname: ‘*’,如下图所示
-   ![](./image/esjs.png)
+   ![](../image/esjs.png)
    * 修改head的连接地址， 文件为 ``` elasticsearch-head/_site/app.js ``` ,如下图所示
-   ![](./image/esappjs.jpg)  
+   ![](../image/esappjs.jpg)  
    
 5.安装完成启动head 
     * 首先启动es
@@ -58,11 +58,9 @@
     
        ```
        1. npm install
-
-       ```
-     * 进入elasticsearch-head目录启动node.js
-     
-        ```
+       
+       2.进入elasticsearch-head目录启动node.js
+   
         grunt server
      
         ```
