@@ -73,18 +73,6 @@
 
 ![](../image/create_index.png)
 
-```
-PUT /megacorp/employee/1
-{
-    "first_name" : "John",
-    "last_name" :  "Smith",
-    "age" :        25,
-    "about" :      "I love to go rock climbing",
-    "interests": [ "sports", "music" ]
-}
-
-```
-
 ## 添加数据
 
 ```
@@ -108,22 +96,10 @@ PUT http://localhost:9200/jd/employee/4/
 * 检索单个文档
 
 ```
-GET /megacorp/employee/1
-{
-  "_index" :   "megacorp",
-  "_type" :    "employee",
-  "_id" :      "1",
-  "_version" : 1,
-  "found" :    true,
-  "_source" :  {
-      "first_name" :  "John",
-      "last_name" :   "Smith",
-      "age" :         25,
-      "about" :       "I love to go rock climbing",
-      "interests":  [ "sports", "music" ]
-  }
-}
+GET http://localhost:9200/jd/employee/4/
+
 ```
+![](../image/search_one.png)
 
 * 检索所有  
 
@@ -179,15 +155,6 @@ GET /megacorp/employee/_search
       ]
    }
 }
-
-```
-* 查询单个
-
-```
-GET http://localhost:9200/jd/employee/4/
-
-```
-![](../image/search_one.png)
 
 * 条件检索  
 
