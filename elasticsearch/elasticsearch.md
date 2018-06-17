@@ -47,26 +47,30 @@
    
    ```
 4.修改head源码
-   * 修改服务器监听地址，文件为``` elasticsearch-head/Gruntfile.js ```  增加hostname属性，设置为 hostname: ‘*’,如下图所示
+   * 修改服务器监听地址，文件为 ``` elasticsearch-head/Gruntfile.js ```  增加hostname属性，设置为 hostname: ‘*’,如下图所示
    ![](./image/esjs.png)
-   * 修改head的连接地址， 文件为``` elasticsearch-head/_site/app.js ``` ,如下图所示
+   * 修改head的连接地址， 文件为 ``` elasticsearch-head/_site/app.js ``` ,如下图所示
    ![](./image/esappjs.jpg)  
    
 5.安装完成启动head 
     * 首先启动es
     * 在head目录中，执行 npm install下载依赖包
+    
        ```
        1. npm install
 
        ```
      * 进入elasticsearch-head目录启动node.js
+     
         ```
         grunt server
      
         ```
+        
      * 访问地址：ip:9100就可以访问head插件了
 
 ## 创建索引
+
 ```
 PUT /megacorp/employee/1
 {
@@ -76,10 +80,12 @@ PUT /megacorp/employee/1
     "about" :      "I love to go rock climbing",
     "interests": [ "sports", "music" ]
 }
+
 ```
 
 ## 检索文档
 * 检索单个文档
+
 ```
 GET /megacorp/employee/1
 {
@@ -97,7 +103,9 @@ GET /megacorp/employee/1
   }
 }
 ```
+
 * 检索所有  
+
 ```
 GET /megacorp/employee/_search
 {
@@ -150,8 +158,11 @@ GET /megacorp/employee/_search
       ]
    }
 }
+
 ```
+
 * 条件检索  
+
 ```
 GET /megacorp/employee/_search?q=last_name:Smith
 {
@@ -183,9 +194,13 @@ GET /megacorp/employee/_search?q=last_name:Smith
       ]
    }
 }
+
 ```
+
 * 使用查询表达式检索
+
 ```
+
 GET /megacorp/employee/_search
 {
     "query" : {
