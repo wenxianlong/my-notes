@@ -26,6 +26,45 @@
 
 ```
 
+## 下载es-head插件
+1.安装git，下载[elasticsearch-head](git://github.com/mobz/elasticsearch-head.git)
+2.安装node,网址：[https://nodejs.org/en/download/ ](https://nodejs.org/en/download/)
+3.安装grunt  
+   grunt是一个很方便的构建工具，可以进行打包压缩、测试、执行等工作，6.0里的插件就是通过grunt启动的
+   * 安装grunt命令行工具 grunt-cli
+   ```
+   npm install -g grunt-cli
+   
+   ```
+   * 安装grunt及其插件
+   ```
+   npm install grunt --save-dev
+   
+   ```
+   * 检查是否安装成功
+   ```
+   grunt version
+   
+   ```
+4.修改head源码
+   * 修改服务器监听地址，文件为``` elasticsearch-head/Gruntfile.js ```  增加hostname属性，设置为 hostname: ‘*’,如下图所示
+   ![](esjs.png)
+   * 修改head的连接地址， 文件为``` elasticsearch-head/_site/app.js ``` 
+   ![](esappjs.png)
+5.安装完成启动head 
+    * 1. 首先启动es
+    * 2. 在head目录中，执行 npm install下载依赖包
+       ```
+       1. npm install
+
+       ```
+     * 3. 进入elasticsearch-head目录启动node.js
+        ```
+        grunt server
+     
+        ```
+     * 4. 访问地址：ip:9100就可以访问head插件了
+
 ## 创建索引
 ```
 PUT /megacorp/employee/1
