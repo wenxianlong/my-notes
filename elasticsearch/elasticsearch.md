@@ -53,7 +53,9 @@
    ![](../image/esappjs.jpg)  
    
 5.安装完成启动head 
-    * 首先启动es
+
+    * 首先启动es  
+    
     * 在head目录中，执行 npm install下载依赖包
     
        ```
@@ -69,6 +71,8 @@
 
 ## 创建索引
 
+![](../image/create_index.png)
+
 ```
 PUT /megacorp/employee/1
 {
@@ -80,6 +84,26 @@ PUT /megacorp/employee/1
 }
 
 ```
+
+## 添加数据
+
+```
+PUT http://localhost:9200/jd/employee/4/
+{
+  "first_name": "wen",
+  "last_name": "xianlong",
+  "age": 25,
+  "about": "Ilovetogorockclimbing",
+  "interests": [
+    "sports",
+    "music"
+  ]
+}
+
+```
+
+![](es_put.png)
+
 
 ## 检索文档
 * 检索单个文档
@@ -158,56 +182,29 @@ GET /megacorp/employee/_search
 }
 
 ```
+* 查询单个
+
+```
+GET http://localhost:9200/jd/employee/4/
+
+```
+![](.../image/search_one.png)
 
 * 条件检索  
 
 ```
-GET /megacorp/employee/_search?q=last_name:Smith
+GET http://localhost:9200/_search?
 {
-   ...
-   "hits": {
-      "total":      2,
-      "max_score":  0.30685282,
-      "hits": [
-         {
-            ...
-            "_source": {
-               "first_name":  "John",
-               "last_name":   "Smith",
-               "age":         25,
-               "about":       "I love to go rock climbing",
-               "interests": [ "sports", "music" ]
-            }
-         },
-         {
-            ...
-            "_source": {
-               "first_name":  "Jane",
-               "last_name":   "Smith",
-               "age":         32,
-               "about":       "I like to collect rock albums",
-               "interests": [ "music" ]
-            }
-         }
-      ]
-   }
-}
-
-```
-
-* 使用查询表达式检索
-
-```
-
-GET /megacorp/employee/_search
-{
-    "query" : {
-        "match" : {
-            "last_name" : "Smith"
-        }
+  "query": {
+    "match": {
+      "about": "rock albums"
     }
+  }
 }
+
 ```
+![](../image/search_query.png)
+
 * 更复杂的搜索  
 现在尝试下更复杂的搜索。 同样搜索姓氏为 Smith 的雇员，但这次我们只需要年龄大于 30 的。查询需要稍作调整，使用过滤器 filter ，它支持高效地执行一个结构化查询
 ```
@@ -244,20 +241,22 @@ GET /megacorp/employee/_search
 * 高亮检索  
 许多应用都倾向于在每个搜索结果中 高亮 部分文本片段，以便让用户知道为何该文档符合查询条件。在 Elasticsearch 中检索出高亮片段也很容易。  
 ```
-GET /megacorp/employee/_search
+GET http://localhost:9200/_search?
 {
-    "query" : {
-        "match_phrase" : {
-            "about" : "rock climbing"
-        }
-      },
-      "highlight" : {
-          "fields" : {
-              "about" : {}
-          }
-      }
+  "query": {
+    "match_phrase": {
+      "about": "rock climbing"
+    }
+  },
+  "highlight": {
+    "fields": {
+      "about": {}
+    }
+  }
 }
 ```
+![](../image/search_query_hightlight.png)
+
 ### 分析文档
 Elasticsearch 有一个功能叫聚合（aggregations），允许我们基于数据生成一些精细的分析结果。聚合与 SQL 中的 GROUP BY 类似但更强大。
 例如：  
