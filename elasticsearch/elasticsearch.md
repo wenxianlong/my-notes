@@ -156,6 +156,8 @@ GET /megacorp/employee/_search
    }
 }
 
+```
+
 * 条件检索  
 
 ```
@@ -191,6 +193,7 @@ GET /megacorp/employee/_search
         }
     }
 }
+
 ```
 * 短语检索
 找出一个属性中的独立单词是没有问题的，但有时候想要精确匹配一系列单词或者短语 。 比如， 我们想执行这样一个查询，仅匹配同时包含 “rock” 和 “climbing” ，并且 二者以短语 “rock climbing” 的形式紧挨着的雇员记录。  
@@ -203,9 +206,12 @@ GET /megacorp/employee/_search
         }
     }
 }
+
 ```
+
 * 高亮检索  
-许多应用都倾向于在每个搜索结果中 高亮 部分文本片段，以便让用户知道为何该文档符合查询条件。在 Elasticsearch 中检索出高亮片段也很容易。  
+许多应用都倾向于在每个搜索结果中 高亮 部分文本片段，以便让用户知道为何该文档符合查询条件。在 Elasticsearch 中检索出高亮片段也很容易。 
+
 ```
 GET http://localhost:9200/_search?
 {
@@ -221,6 +227,7 @@ GET http://localhost:9200/_search?
   }
 }
 ```
+
 ![](../image/search_query_highlight.png)
 
 ### 分析文档
