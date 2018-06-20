@@ -1,6 +1,6 @@
 ### 带有index的循环
 
-````
+```
   1.清空数组
    _this.secondDepartmentList.splice(0, _this.secondDepartmentList.length);
   2.循环result中的值；后端传递的是一个List对象
@@ -10,10 +10,9 @@
           departName: obj.departName
       });
   });
-
 ```
 
-### 前后端交互；Ajax请求向后台传递对象
+### 前后端交互；Ajax请求向后台传递对象 
 
 ```
 1.前端传递
